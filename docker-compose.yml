@@ -6,7 +6,7 @@ networks:
 
 # 服务容器配置
 services:
-  java:                                # 自定义容器名称
+  java:
     build:
       context: ./java                  # 指定构建使用的 Dockerfile 文件
     image: java-dev:1.0

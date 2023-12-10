@@ -1,0 +1,24 @@
+version: '3.5'
+# 网络配置
+networks:
+  dev:
+    driver: ${NETWORKS_DRIVER}
+
+# 服务容器配置
+services:
+  mysql:
+    build:
+      context: ./mysql
+    image: mysql-dev:1.0
+    container_name: mysql-dev
+    restart: always
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ}
+    ports:
+      - '3306:3306'
+    volumes:
+      - ${MYSQL_DATA_PATH}:/var/lib/mysql
+    networks:
+      - backend
