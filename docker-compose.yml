@@ -86,3 +86,19 @@ services:
       - dev
     restart: always                      # 指定容器退出后的重启策略为始终重启
   
+  mysql:
+    build:
+      context: ./mysql
+    image: mysql-dev:1.0
+    container_name: mysql-dev
+    restart: always
+    privileged: true
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${TZ}
+    ports:
+      - '3306:3306'
+    volumes:
+      - ${MYSQL_DATA_PATH}:/var/lib/mysql
+    networks:
+      - dev
