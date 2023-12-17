@@ -62,7 +62,7 @@ RUN <<EOF
 apt-get clean
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 rm /var/log/lastlog /var/log/faillog
-EOF 
+EOF
 
 # 设置工作目录
 WORKDIR /root/workplace

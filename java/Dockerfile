@@ -21,7 +21,7 @@ apt-get install -y --no-install-recommends \
     git \
     vim \
     openssh-server
-EOF    
+EOF
 
 # 将本地的 Java 和 Maven 压缩包复制到镜像中
 COPY jdk-8u361-linux-x64.tar.gz /tmp/jdk.tar.gz
@@ -34,7 +34,7 @@ rm /tmp/jdk.tar.gz
 unzip /tmp/maven.zip -d /
 rm /tmp/maven.zip
 chmod +x /apache-maven-3.9.6/bin/mvn
-EOF       
+EOF
 
 # 配置 ssh git vim 环境变量
 RUN <<EOF
@@ -42,7 +42,7 @@ sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd
 sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 git config --global user.name "antares"
 git config --global user.email "1716607668@qq.com"
-EOF    
+EOF
 
 RUN tee ~/.vimrc <<-'EOF'
 set tabstop=4
@@ -71,7 +71,7 @@ RUN <<EOF
 apt-get clean
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 rm /var/log/lastlog /var/log/faillog
-EOF   
+EOF
 
 # 设置工作目录
 WORKDIR /root/workplace
