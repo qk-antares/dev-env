@@ -15,7 +15,7 @@ services:
       - TZ=${TZ}
     privileged: true
     volumes:
-      - ${JAVA_CODE_PATH_HOST}:/root/workplace
+      - ${CODE_PATH}/java:/root/workplace
       - /root/.ssh:/root/.ssh
     ports:
       - "2222:22"
@@ -46,7 +46,7 @@ services:
       - dev
     restart: always                      # 指定容器退出后的重启策略为始终重启
 
-  golang:                                # 自定义容器名称
+  golang:
     build:
       context: ./golang                  # 指定构建使用的 Dockerfile 文件
     image: golang-dev:1.0
@@ -55,7 +55,7 @@ services:
       - TZ=${TZ}
     privileged: true
     volumes:
-      - ${GOLANG_CODE_PATH_HOST}:/root/workplace
+      - ${CODE_PATH}/golang:/root/workplace
       - /root/.ssh:/root/.ssh
     ports:
       - "2223:22"
@@ -99,6 +99,44 @@ services:
     ports:
       - '3306:3306'
     volumes:
-      - ${MYSQL_DATA_PATH}:/var/lib/mysql
+      - ${DATA_PATH}/mysql:/var/lib/mysql
     networks:
       - dev
+
+  node:
+    build:
+      context: ./node                  # 指定构建使用的 Dockerfile 文件
+    image: node-dev:1.0
+    container_name: node-dev
+    environment:                         # 设置环境变量
+      - TZ=${TZ}
+    privileged: true
+    volumes:
+      - ${CODE_PATH}/node:/root/workplace
+      - /root/.ssh:/root/.ssh
+    ports:
+      - "2224:22"
+    command: ["/etc/init.d/ssh", "start", "-D"]
+    stdin_open: true                     # 打开标准输入，可以接受外部输入
+    tty: true
+    networks:
+      - dev
+    restart: always                      # 指定容器退出后的重启策略为始终重启
+  
+  redis:
+    build:
+      context: ./redis
+    image: redis-dev:1.0
+    container_name: redis-dev
+    environment:
+      - TZ=${TZ}
+    privileged: true
+    volumes:
+      - ${DATA_PATH}/redis:/data
+      - ${CONF_PATH}/redis:/etc/redis
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "/etc/redis/redis.conf"]
+    networks:
+      - dev
+    restart: always

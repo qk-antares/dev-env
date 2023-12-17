@@ -1,8 +1,7 @@
-FROM golang:1.21
+FROM node:18
 
-ENV GOPROXY https://goproxy.cn,direct
-
-ENV PATH $GOPATH/bin:$PATH
+# 设置工作目录
+WORKDIR /root/workplace
 
 # 更新apt源
 RUN tee /etc/apt/sources.list <<-'EOF'
@@ -23,38 +22,25 @@ RUN apt-get update && \
     vim \
     openssh-server
 
-# 配置ssh git vim GOPATH GOPROXY
+# 配置ssh git npm vim 
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
     sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
     git config --global user.name "antares" && \
     git config --global user.email "1716607668@qq.com" && \
+    npm config set registry https://registry.npm.taobao.org && \
+    echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf && \
 tee ~/.vimrc <<-'EOF'
 set tabstop=4
 syntax enable
 if has('mouse')
     set mouse-=a
 endif
-EOF && \
-tee /etc/profile <<-'EOF'
-export GOPATH=/usr/local/go
-export PATH=$PATH:$GOPATH/bin
-EOF && \
-go env -w GOPROXY=https://goproxy.cn,direct
-
-# 安装 goctl protoc protoc-gen-go protoc-gen-go-grpc
-RUN GOPROXY=https://goproxy.cn/,direct go install github.com/zeromicro/go-zero/tools/goctl@latest && \
-    curl -L -o /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v3.19.1/protoc-3.19.1-linux-x86_64.zip && \
-    unzip -d /tmp/protoc /tmp/protoc.zip && \
-    mv /tmp/protoc/bin/protoc $GOPATH/bin && \
-    go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+EOF
 
 # 清理垃圾
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm /var/log/lastlog /var/log/faillog
 
-# 设置工作目录
-WORKDIR /root/workplace
-
-EXPOSE 22
+# 启动SSH服务
+CMD ["/usr/sbin/sshd", "-D"]
