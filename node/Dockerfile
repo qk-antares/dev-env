@@ -12,24 +12,29 @@ deb https://security.debian.org/debian-security bookworm-security main contrib n
 EOF
 
 # 安装必要的包
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
+RUN <<EOF
+apt-get update
+apt-get upgrade -y
+apt-get install -y --no-install-recommends \
     curl \
     zip \
     unzip \
     git \
     vim \
     openssh-server
+EOF
 
 # 配置ssh git npm vim 
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
-    git config --global user.name "antares" && \
-    git config --global user.email "1716607668@qq.com" && \
-    npm config set registry https://registry.npm.taobao.org && \
-    echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf && \
-tee ~/.vimrc <<-'EOF'
+RUN <<EOF
+sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+git config --global user.name "antares"
+git config --global user.email "1716607668@qq.com"
+npm config set registry https://registry.npm.taobao.org
+echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf
+EOF
+
+RUN tee ~/.vimrc <<-'EOF'
 set tabstop=4
 syntax enable
 if has('mouse')
@@ -38,9 +43,10 @@ endif
 EOF
 
 # 清理垃圾
-RUN apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm /var/log/lastlog /var/log/faillog
+RUN <<EOF
+apt-get clean
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+rm /var/log/lastlog /var/log/faillog
+EOF
 
-# 启动SSH服务
-CMD ["/usr/sbin/sshd", "-D"]
+EXPOSE 22
